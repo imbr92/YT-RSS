@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Paths to set
+path_to_feed=~/.config/rsslist  # Path to file containing RSS feed links
+default_download_dir=~/Videos/ # Default location where videos will be downloaded to
+
+
+while IFS='|' read -r url download_dir flags
+do
+    url=$(echo $url | awk '{$1=$1};1')
+    download_dir=$(echo $download_dir | awk '{$1=$1};1')
+    flags=$(echo $flags | awk '{$1=$1};1')
+
+    [ -z "$download_dir" ] && download_dir=$default_download_dir
+
+    formatted_entries=$(curl -s "$url" | grep '.*link.*?v=.*\|updated' | awk -F'[<>"]' -v ORS="" '{ print ($2=="updated" ? $3 "\n" : $5 " ") }' | head -n 5)
+
+    while IFS=' ' read -r video_url timestamp
+    do
+        [ -z "$video_url" ] && continue
+        yt-dlp -P $download_dir "$video_url"
+    done  < <(printf '%s\n' "$formatted_entries")
+
+
+done < "$path_to_feed"
