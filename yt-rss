@@ -20,11 +20,14 @@ while read -r id ts <&3; IFS='|' read -r url download_dir flags;  do
     updated_ts=$ts
     prev_ts=$ts
 
+    flags="-P ${download_dir} ${flags} ${video_url}"   
+    arr=($flags)
+
     while IFS=' ' read -r video_url timestamp; do
         [ -z "$video_url" ] && continue
         cur_ts=$(date -d $timestamp +%s)
         if [ $ts -lt $cur_ts ]; then
-            yt-dlp -P $download_dir "$video_url" && [ $updated_ts -eq $prev_ts ] && updated_ts=$cur_ts
+            $(echo "yt-dlp ${arr[@]} ${video_url}") && [ $updated_ts -eq $prev_ts ] && updated_ts=$cur_ts
             prev_ts=$cur_ts
         fi
     done  < <(printf '%s\n' "$formatted_entries")
