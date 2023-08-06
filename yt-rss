@@ -16,7 +16,7 @@ while read -r id ts <&3; IFS='|' read -r url download_dir flags;  do
     download_dir=${download_dir:-$default_download_dir}
     flags=$(echo $flags | awk '{$1=$1};1')
 
-    formatted_entries=$(curl -s "$url" | grep '.*link.*?v=.*\|updated' | awk -F'[<>"]' -v ORS="" '{ print ($2=="updated" ? $3 "\n" : $5 " ") }' | tac | head -n 2)
+    formatted_entries=$(curl -s "$url" | grep '.*link.*?v=.*\|updated' | awk -F'[<>"]' -v ORS="" '{ print ($2=="updated" ? $3 "\n" : $5 " ") }' | tac)
     updated_ts=$ts
     prev_ts=$ts
 
